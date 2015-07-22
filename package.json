@@ -1,0 +1,14 @@
+{
+  "name": "javascriptresthelloworld",
+  "version": "0.1.0",
+  "description": "Node_REST",
+   "scripts": {
+		"start": "node javascript_rest_HelloWorld.js"
+	},
+	"dependencies": {
+      "express": "4.12.x",
+      "mongodb" : "~2.0.13",
+      "ejs":"~2.3.3"
+  },
+  "repository": {}
+}
