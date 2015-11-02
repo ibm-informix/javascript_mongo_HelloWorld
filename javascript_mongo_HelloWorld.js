@@ -163,13 +163,13 @@ function doEverything(res) {
 }
 function parseVcap(){
 	var vcap_services = JSON.parse(process.env.VCAP_SERVICES);
-	var credentials = vcap_services['altadb-dev'][0].credentials;
+	var credentials = vcap_services['timeseriesdatabase'][0].credentials;
 	var ssl = false;
 	if (ssl){
-		url = credentials.ssl_json_url;
+		url = credentials.mongodb_url_ssl;
 	}
 	else{
-		url = credentials.json_url;
+		url = credentials.mongodb_url;
 	}
 }
 

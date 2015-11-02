@@ -1,9 +1,9 @@
 {
-  "name": "javascriptresthelloworld",
+  "name": "javascriptmongohelloworld",
   "version": "0.1.0",
   "description": "Node_REST",
    "scripts": {
-		"start": "node javascript_rest_HelloWorld.js"
+		"start": "node javascript_mongo_HelloWorld.js"
 	},
 	"dependencies": {
       "express": "4.12.x",
