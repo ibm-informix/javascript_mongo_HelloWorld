@@ -18,16 +18,23 @@ var express = require('express');
 var app = express();
 var MongoClient = require('mongodb').MongoClient;
 var collectionName = "nodeMongo";
-var url;
-var commands = [];
-//var buffer = require('fs').readFileSync("");
+
+// To run locally, set the URL here
+var URL = "";
+
 var port = process.env.VCAP_APP_PORT || 3000;
+var USE_SSL = false;
+
+var commands = [];
+
 // Since node uses asynchronous server calls, in order to get commands to complete sequentially they are passed into the next functions as callbacks
 // Remove the call to the next function to break the chain of events
 
-
 function doEverything(res) {
-	parseVcap();
+	url = URL;
+	if (url == null || url == "") {
+		url = parseVcap();
+	}
 	MongoClient.connect(url, function(err, db) {
 		if (err){ 
 			return console.error("error: ", err.message);
@@ -141,6 +148,7 @@ function doEverything(res) {
 			commands.push("#5 Drop a collection");
 			db.dropCollection(collectionName, printBrowser);
 			commands.push("Collection dropped");
+			db.close();
 		}
 		
 		function printLog(){
@@ -161,16 +169,17 @@ function doEverything(res) {
 	
 	});
 }
-function parseVcap(){
-	var vcap_services = JSON.parse(process.env.VCAP_SERVICES);
-	var credentials = vcap_services['timeseriesdatabase'][0].credentials;
-	var ssl = false;
-	if (ssl){
+function parseVcap() {
+	var serviceName = process.env.SERVICE_NAME || 'timeseriesdatabase';
+    var vcap_services = JSON.parse(process.env.VCAP_SERVICES);
+    var credentials = vcap_services[serviceName][0].credentials;
+	if (USE_SSL){
 		url = credentials.mongodb_url_ssl;
 	}
 	else{
 		url = credentials.mongodb_url;
 	}
+	return url;
 }
 
 app.get('/databasetest', function(req, res) {
