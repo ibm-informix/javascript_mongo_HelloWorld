@@ -191,5 +191,5 @@ app.get('/', function(req, res) {
 });
 
 app.listen(port,  function() {
-	console.log("server starting on 3000");
+	console.log("server starting on " + port);
 });
