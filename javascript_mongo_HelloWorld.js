@@ -19,7 +19,7 @@ var app = express();
 var MongoClient = require('mongodb').MongoClient;
 var collectionName = "nodeMongo";
 
-// To run locally, set the URL here
+// To run locally, set the URL here. For example URL = "mongodb://user:password@localhost:27107/testdb"
 var URL = "";
 
 var port = process.env.VCAP_APP_PORT || 3000;
@@ -37,7 +37,7 @@ function doEverything(res) {
 	}
 	MongoClient.connect(url, function(err, db) {
 		if (err){ 
-			return console.error("error: ", err.message);
+			handleError(err, res, db);
 		}
 		
 		var collection = db.collection(collectionName);
@@ -46,7 +46,7 @@ function doEverything(res) {
 		// Remove the insertMany callback to avoid calling the insertMany function
 		function insert(err) {
 			if (err){
-				return console.error("error: ", err.message);
+				handleError(err, res, db);
 			}
 			collection.insert({name : "test1", value : 1}, insertMany);
 			commands.push("#1 Inserts");
@@ -58,7 +58,7 @@ function doEverything(res) {
 		// Remove the findOne callback to avoid calling the findOne function
 		function insertMany(err) {
 			if (err){
-				return console.error("error: ", err.message);
+				handleError(err, res, db);
 			}
 			commands.push("#1.2 Insert documents into a collection");
 			collection.insert([{name : "test1", value : 11}, {name : "test2", value : 2}, {name : "test3", value : 3}], findOne);
@@ -69,7 +69,7 @@ function doEverything(res) {
 		// Remove the findAll() callback to avoid calling the findAll function
 		function findOne(err) {
 			if (err){
-				return console.error("error: ", err.message);
+				handleError(err, res, db);
 			}
 			collection.findOne({name: "test1"}, function (err, results) {
 				commands.push("#2 Queries");
@@ -85,7 +85,7 @@ function doEverything(res) {
 		// Remove the find() callback to avoid calling the find function
 		function findAll(err) {
 			if (err){
-				return console.error("error: ", err.message);
+				handleError(err, res, db);
 			}
 			var cursor = collection.find({name: "test1"});
 			commands.push("#2.2 Find documents in a collection that matches query condition");
@@ -104,7 +104,7 @@ function doEverything(res) {
 		// Remove the update() callback to avoid calling the update function
 		function find(err) {
 			if (err){
-				return console.error("error: ", err.message);
+				handleError(err, res, db);
 			}
 			var cursor = collection.find();
 			commands.push("#2.3 Find all documents in a collection");
@@ -122,7 +122,7 @@ function doEverything(res) {
 		// Remove the remove callback to avoid calling the remove function
 		function update(err){
 			if (err){
-				return console.error("error: ", err.message);
+				handleError(err, res, db);
 			}
 			commands.push("#3 Update documents in a collection");
 			collection.update({name : "test2"}, {$set : {value : 9}}, remove);
@@ -133,7 +133,7 @@ function doEverything(res) {
 		// Remove the drop callback to avoid calling the drop function
 		function remove(err) {
 			if (err){
-				return console.error("error: ", err.message);
+				handleError(err, res, db);
 			}
 			commands.push("#4 Delete documents in a collection");
 			collection.remove({name : "test3"}, drop);
@@ -143,7 +143,7 @@ function doEverything(res) {
 		// Drops the entire collection
 		function drop(err) {
 			if (err){
-				return console.error("error: ", err.message);
+				handleError(err, res, db);
 			}
 			commands.push("#5 Drop a collection");
 			db.dropCollection(collectionName, printBrowser);
@@ -163,12 +163,28 @@ function doEverything(res) {
 			res.render('index.ejs', {commands: commands});
 			commands = [];
 		}
-
+		
 		// Starts the chain of event by calling insert
 		insert();
 	
 	});
 }
+
+function handleError(err, res, db) {
+	console.error("error: ", err.message);
+	
+	// Ensure db object gets closed
+	if (db) {
+		db.close();
+	}
+	
+	// Display result
+	commands.push("ERROR: " + err.message);
+	app.set('view engine', 'ejs');
+	res.render('index.ejs', {commands: commands});
+	commands = [];
+}
+
 function parseVcap() {
 	var serviceName = process.env.SERVICE_NAME || 'timeseriesdatabase';
     var vcap_services = JSON.parse(process.env.VCAP_SERVICES);
