@@ -38,6 +38,7 @@ function doEverything(res) {
 	MongoClient.connect(url, function(err, db) {
 		if (err){ 
 			handleError(err, res, db);
+			return;
 		}
 		
 		var collection = db.collection(collectionName);
@@ -47,6 +48,7 @@ function doEverything(res) {
 		function insert(err) {
 			if (err){
 				handleError(err, res, db);
+				return;
 			}
 			collection.insert({name : "test1", value : 1}, insertMany);
 			commands.push("#1 Inserts");
@@ -59,6 +61,7 @@ function doEverything(res) {
 		function insertMany(err) {
 			if (err){
 				handleError(err, res, db);
+				return;
 			}
 			commands.push("#1.2 Insert documents into a collection");
 			collection.insert([{name : "test1", value : 11}, {name : "test2", value : 2}, {name : "test3", value : 3}], findOne);
@@ -70,6 +73,7 @@ function doEverything(res) {
 		function findOne(err) {
 			if (err){
 				handleError(err, res, db);
+				return;
 			}
 			collection.findOne({name: "test1"}, function (err, results) {
 				commands.push("#2 Queries");
@@ -86,6 +90,7 @@ function doEverything(res) {
 		function findAll(err) {
 			if (err){
 				handleError(err, res, db);
+				return;
 			}
 			var cursor = collection.find({name: "test1"});
 			commands.push("#2.2 Find documents in a collection that matches query condition");
@@ -105,6 +110,7 @@ function doEverything(res) {
 		function find(err) {
 			if (err){
 				handleError(err, res, db);
+				return;
 			}
 			var cursor = collection.find();
 			commands.push("#2.3 Find all documents in a collection");
@@ -123,6 +129,7 @@ function doEverything(res) {
 		function update(err){
 			if (err){
 				handleError(err, res, db);
+				return;
 			}
 			commands.push("#3 Update documents in a collection");
 			collection.update({name : "test2"}, {$set : {value : 9}}, remove);
@@ -134,6 +141,7 @@ function doEverything(res) {
 		function remove(err) {
 			if (err){
 				handleError(err, res, db);
+				return;
 			}
 			commands.push("#4 Delete documents in a collection");
 			collection.remove({name : "test3"}, drop);
@@ -144,6 +152,7 @@ function doEverything(res) {
 		function drop(err) {
 			if (err){
 				handleError(err, res, db);
+				return;
 			}
 			commands.push("#5 Drop a collection");
 			db.dropCollection(collectionName, printBrowser);
